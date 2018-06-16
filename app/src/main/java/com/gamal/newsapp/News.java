@@ -38,8 +38,8 @@ public class News {
                 String title=resObj.getString("webTitle");
                 String url=resObj.getString("webUrl");
                 String section=resObj.getString("sectionName");
-                NewsItem newsItem=new NewsItem(title,section,url);
-                newsItem.setImgRes(0);
+                String DOP=resObj.getString("webPublicationDate");
+                NewsItem newsItem=new NewsItem(title,section,url,DOP);
                 items.add(newsItem);
             }
         } catch (JSONException e) {

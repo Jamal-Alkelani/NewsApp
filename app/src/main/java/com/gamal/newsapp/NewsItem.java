@@ -3,21 +3,18 @@ package com.gamal.newsapp;
 public class NewsItem {
     private String title;
     private String section;
+    private String DOP;
     private String url;
-    private int imgRes;
 
-    public int getImgRes() {
-        return imgRes;
-    }
-
-    public void setImgRes(int imgRes) {
-        this.imgRes = imgRes;
-    }
-
-    public NewsItem(String title, String section, String url) {
+    public NewsItem(String title, String section, String url,String DOP) {
         this.title = title;
         this.section = section;
         this.url = url;
+        this.DOP=DOP;
+    }
+
+    public String getDOP() {
+        return DOP;
     }
 
     public String getTitle() {

@@ -5,11 +5,16 @@ import android.content.Intent;
 import android.content.Loader;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.GridView;
+import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -20,7 +25,7 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<List<NewsItem>> {
     public static int ImgRes[]={R.drawable.a,R.drawable.c,R.drawable.d,R.drawable.e,R.drawable.b};
     public static final String API_URL="https://content.guardianapis.com/search?q=(football%20OR%20sausages%20OR%20USA)&format=json&api-key=test&page-size=50";
-    private GridView gridView;
+    private ListView gridView;
     private ProgressBar loadingAnimation;
     private TextView dataEmpty;
     @Override
@@ -34,15 +39,17 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         dataEmpty=(TextView) findViewById(R.id.emptyData);
         LoaderManager loaderManager=getLoaderManager();
         loaderManager.initLoader(0, null, this);
-        gridView=(GridView) findViewById(R.id.gridView);
+        gridView= findViewById(R.id.gridView);
         gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 NewsItem list= (NewsItem) parent.getAdapter().getItem(position);
-
                 pictureClick(view.findViewById(R.id.image),list.getSection(),list.getUrl());
+
             }
         });
+
+
     }
 
     public void pictureClick(View v,String section,String url){
@@ -107,6 +114,21 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
     }
 
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu,menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if(item.getItemId()==R.id.menu_item){
+            startActivity(new Intent(getApplicationContext(),SettingsActivity.class));
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
 
 
 }
