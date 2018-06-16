@@ -5,12 +5,21 @@ public class NewsItem {
     private String section;
     private String DOP;
     private String url;
+    private String author;
 
-    public NewsItem(String title, String section, String url,String DOP) {
+    public String getAuthor() {
+        return author;
+    }
+
+    public void setAuthor(String author) {
+        this.author = author;
+    }
+
+    public NewsItem(String title, String section, String url, String DOP) {
         this.title = title;
         this.section = section;
         this.url = url;
-        this.DOP=DOP;
+        this.DOP = DOP;
     }
 
     public String getDOP() {
