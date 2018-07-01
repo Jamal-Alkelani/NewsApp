@@ -3,9 +3,11 @@ package com.gamal.newsapp;
 import android.app.LoaderManager;
 import android.content.Intent;
 import android.content.Loader;
+import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
+import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -13,7 +15,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.GridView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -22,24 +23,36 @@ import com.github.ybq.android.spinkit.style.CubeGrid;
 
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<List<NewsItem>> {
-    public static int ImgRes[] = {R.drawable.a, R.drawable.c, R.drawable.d, R.drawable.e, R.drawable.b};
-    public static final String API_URL = "https://content.guardianapis.com/search?q=(football%20OR%20sausages%20OR%20USA)&format=json&api-key=test&page-size=50";
+/**
+ * @author gamal
+ */
+
+public class MainActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<List<NewsItem>>,
+        SharedPreferences.OnSharedPreferenceChangeListener {
+    public static int[] ImgRes = {R.drawable.a, R.drawable.c, R.drawable.d, R.drawable.e, R.drawable.b};
+    public static final String API_URL = "https://content.guardianapis.com/search";
     private ListView gridView;
     private ProgressBar loadingAnimation;
     private TextView dataEmpty;
-
+    private CustomGridViewAdapter adapter;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        loadingAnimation = (ProgressBar) findViewById(R.id.spin_kit);
+        SharedPreferences pref=getApplicationContext().getSharedPreferences("MYPREF",0);
+        int pageSize=pref.getInt("pageSize",-1);
+        if(pageSize==-1){
+            pref.edit().putInt("pageSize",50).apply();
+        }
+
+        loadingAnimation =  findViewById(R.id.spin_kit);
         CubeGrid cubeGrid = new CubeGrid();
         loadingAnimation.setIndeterminateDrawable(cubeGrid);
-        dataEmpty = (TextView) findViewById(R.id.emptyData);
+        dataEmpty =  findViewById(R.id.emptyData);
         LoaderManager loaderManager = getLoaderManager();
         loaderManager.initLoader(0, null, this);
+
         gridView = findViewById(R.id.gridView);
         gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -50,6 +63,9 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
             }
         });
+
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        prefs.registerOnSharedPreferenceChangeListener(this);
 
 
     }
@@ -64,12 +80,21 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
 
     public void updateUI(List<NewsItem> data) {
-        CustomGridViewAdapter adapter = new CustomGridViewAdapter(getApplicationContext(), 0, data);
+         adapter = new CustomGridViewAdapter(getApplicationContext(), 0, data);
         gridView.setAdapter(adapter);
     }
 
     @Override
     public Loader<List<NewsItem>> onCreateLoader(int id, Bundle args) {
+        Uri base=Uri.parse(API_URL);
+        Uri.Builder builder=base.buildUpon();
+        builder.appendQueryParameter("q","(football%20OR%20sausages%20OR%20USA)");
+        builder.appendQueryParameter("format","json");
+        builder.appendQueryParameter("api-key","7e099af7-4aa1-4686-b4db-e00e6c832c01");
+        SharedPreferences pref=PreferenceManager.getDefaultSharedPreferences(this);
+        String x=pref.getString("pageSize","50");
+        builder.appendQueryParameter("page-size",x);
+        Log.e("xx",builder.toString());
         loadingAnimation.setVisibility(View.VISIBLE);
         Thread thread = new Thread();
         try {
@@ -81,6 +106,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         ConnectivityManager cm =
                 (ConnectivityManager) getApplicationContext().getSystemService(getApplicationContext().CONNECTIVITY_SERVICE);
 
+        assert cm != null;
         NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
         boolean isConnected = activeNetwork != null &&
                 activeNetwork.isConnectedOrConnecting();
@@ -90,8 +116,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
             dataEmpty.setVisibility(View.VISIBLE);
             return null;
         }
-        return new NewsLoader(this, API_URL);
-
+        return new NewsLoader(this, builder.toString());
     }
 
     @Override
@@ -110,11 +135,10 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
     }
 
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu, menu);
-        return super.onCreateOptionsMenu(menu);
+        return true;
     }
 
     @Override
@@ -127,4 +151,15 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     }
 
 
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+
+            adapter.clear();
+
+            loadingAnimation.setVisibility(View.VISIBLE);
+
+            // Restart the loader to requery the USGS as the query settings have been updated
+            getLoaderManager().restartLoader(1, null, this);
+
+    }
 }
