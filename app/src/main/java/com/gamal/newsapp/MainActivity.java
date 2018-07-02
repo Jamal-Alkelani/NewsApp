@@ -96,7 +96,6 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
         String x = pref.getString("pageSize", "50");
         builder.appendQueryParameter("page-size", x);
-        Log.e("xx", builder.toString());
         loadingAnimation.setVisibility(View.VISIBLE);
         Thread thread = new Thread();
         try {
