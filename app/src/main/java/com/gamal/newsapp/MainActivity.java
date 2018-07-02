@@ -91,6 +91,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         builder.appendQueryParameter("q","(football%20OR%20sausages%20OR%20USA)");
         builder.appendQueryParameter("format","json");
         builder.appendQueryParameter("api-key","7e099af7-4aa1-4686-b4db-e00e6c832c01");
+        builder.appendQueryParameter("show-tags","contributor");
         SharedPreferences pref=PreferenceManager.getDefaultSharedPreferences(this);
         String x=pref.getString("pageSize","50");
         builder.appendQueryParameter("page-size",x);
