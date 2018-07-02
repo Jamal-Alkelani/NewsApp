@@ -35,21 +35,22 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     private ProgressBar loadingAnimation;
     private TextView dataEmpty;
     private CustomGridViewAdapter adapter;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        SharedPreferences pref=getApplicationContext().getSharedPreferences("MYPREF",0);
-        int pageSize=pref.getInt("pageSize",-1);
-        if(pageSize==-1){
-            pref.edit().putInt("pageSize",50).apply();
+        SharedPreferences pref = getApplicationContext().getSharedPreferences("MYPREF", 0);
+        int pageSize = pref.getInt("pageSize", -1);
+        if (pageSize == -1) {
+            pref.edit().putInt("pageSize", 50).apply();
         }
 
-        loadingAnimation =  findViewById(R.id.spin_kit);
+        loadingAnimation = findViewById(R.id.spin_kit);
         CubeGrid cubeGrid = new CubeGrid();
         loadingAnimation.setIndeterminateDrawable(cubeGrid);
-        dataEmpty =  findViewById(R.id.emptyData);
+        dataEmpty = findViewById(R.id.emptyData);
         LoaderManager loaderManager = getLoaderManager();
         loaderManager.initLoader(0, null, this);
 
@@ -80,22 +81,22 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
 
     public void updateUI(List<NewsItem> data) {
-         adapter = new CustomGridViewAdapter(getApplicationContext(), 0, data);
+        adapter = new CustomGridViewAdapter(getApplicationContext(), 0, data);
         gridView.setAdapter(adapter);
     }
 
     @Override
     public Loader<List<NewsItem>> onCreateLoader(int id, Bundle args) {
-        Uri base=Uri.parse(API_URL);
-        Uri.Builder builder=base.buildUpon();
-        builder.appendQueryParameter("q","(football%20OR%20sausages%20OR%20USA)");
-        builder.appendQueryParameter("format","json");
-        builder.appendQueryParameter("api-key","7e099af7-4aa1-4686-b4db-e00e6c832c01");
-        builder.appendQueryParameter("show-tags","contributor");
-        SharedPreferences pref=PreferenceManager.getDefaultSharedPreferences(this);
-        String x=pref.getString("pageSize","50");
-        builder.appendQueryParameter("page-size",x);
-        Log.e("xx",builder.toString());
+        Uri base = Uri.parse(API_URL);
+        Uri.Builder builder = base.buildUpon();
+        builder.appendQueryParameter("q", "(football%20OR%20sausages%20OR%20USA)");
+        builder.appendQueryParameter("format", "json");
+        builder.appendQueryParameter("api-key", "7e099af7-4aa1-4686-b4db-e00e6c832c01");
+        builder.appendQueryParameter("show-tags", "contributor");
+        SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
+        String x = pref.getString("pageSize", "50");
+        builder.appendQueryParameter("page-size", x);
+        Log.e("xx", builder.toString());
         loadingAnimation.setVisibility(View.VISIBLE);
         Thread thread = new Thread();
         try {
@@ -155,12 +156,12 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
 
-            adapter.clear();
+        adapter.clear();
 
-            loadingAnimation.setVisibility(View.VISIBLE);
+        loadingAnimation.setVisibility(View.VISIBLE);
 
-            // Restart the loader to requery the USGS as the query settings have been updated
-            getLoaderManager().restartLoader(1, null, this);
+        // Restart the loader to requery the USGS as the query settings have been updated
+        getLoaderManager().restartLoader(1, null, this);
 
     }
 }

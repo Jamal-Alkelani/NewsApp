@@ -1,6 +1,7 @@
 package com.gamal.newsapp;
 
 import android.text.TextUtils;
+import android.util.Log;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -37,15 +38,20 @@ public class News {
             JSONArray arr = obj.getJSONObject("response").getJSONArray("results");
             for (int i = 0; i < arr.length(); i++) {
                 JSONObject resObj = (JSONObject) arr.get(i);
-                String firstName= resObj.getJSONArray("tags").getJSONObject(0).getString("firstName");
-                String lastName= resObj.getJSONArray("tags").getJSONObject(0).getString("lastName");
-
+                JSONArray tagsArr = resObj.getJSONArray("tags");
+                JSONObject tagsObj = tagsArr.optJSONObject(0);
+                String author;
+                if (tagsObj != null) {
+                    author = tagsObj.optString("webTitle");
+                } else {
+                    author = null;
+                }
                 String title = resObj.getString("webTitle");
                 String url = resObj.getString("webUrl");
                 String section = resObj.getString("sectionName");
                 String DOP = resObj.getString("webPublicationDate");
                 NewsItem newsItem = new NewsItem(title, section, url, DOP);
-                newsItem.setAuthor(firstName+" "+lastName);
+                newsItem.setAuthor((author == null ? "Author Not Found" : author));
                 items.add(newsItem);
             }
         } catch (JSONException e) {
